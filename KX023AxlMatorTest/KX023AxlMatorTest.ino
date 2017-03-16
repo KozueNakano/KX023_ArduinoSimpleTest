@@ -7,7 +7,7 @@ union data xData;
 union data yData;
 union data zData;
 
-const int sendorDeviceAddress = 0x1F;
+const int sendorDeviceAddress = 0x1F;//I2C7bitAddressMode
 const int regAddressXOUTL = 0x06;
 const int regAddressYOUTL = 0x08;
 const int regAddressZOUTL = 0x0A;
