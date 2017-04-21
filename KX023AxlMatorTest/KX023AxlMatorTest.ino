@@ -11,6 +11,8 @@ const int sendorDeviceAddress = 0x1F;//I2C7bitAddressMode
 const int regAddressXOUTL = 0x06;
 const int regAddressYOUTL = 0x08;
 const int regAddressZOUTL = 0x0A;
+const int regAddressODCNTL = 0x1B;
+const int regAddressCNTL1 = 0x18;
 
 
 void setup() {
@@ -34,6 +36,54 @@ void setup() {
   Wire.write(0x18);
   Wire.write(0xC0);
   Wire.endTransmission();
+  
+  //setup LPF--------------------------------------------------
+  //ここを初期化処理に追加すると加速度センサ側でローパスフィルタがかかります
+  //set device standbyMode
+  //readCNTL1reg
+  byte CNTL1 = 0;
+  Wire.beginTransmission(sendorDeviceAddress);
+  Wire.write(regAddressCNTL1);
+  Wire.endTransmission();
+  Wire.requestFrom(sendorDeviceAddress, 1);
+  CNTL1 = Wire.read();
+  //setCNTL1reg
+  CNTL1 = CNTL1 & 0b01111111;
+  Wire.beginTransmission(sendorDeviceAddress);
+  Wire.write(regAddressCNTL1);
+  Wire.write(CNTL1);
+  Wire.endTransmission();
+
+  //set LPF parameters
+  //readODCNTLreg
+  byte ODCNTL = 0;
+  Wire.beginTransmission(sendorDeviceAddress);
+  Wire.write(regAddressODCNTL);
+  Wire.endTransmission();
+  Wire.requestFrom(sendorDeviceAddress, 1);
+  ODCNTL = Wire.read();
+  //setODCNTLreg
+  ODCNTL = ODCNTL | 0b01000000;//set filter corner frequency set to ODR/2
+  ODCNTL = ODCNTL & 0b11110000;//set OutputDataRate 12.5Hz
+  Wire.beginTransmission(sendorDeviceAddress);
+  Wire.write(regAddressODCNTL);
+  Wire.write(ODCNTL);
+  Wire.endTransmission();
+  
+  //set device operating mode
+  //readCNTL1reg
+  Wire.beginTransmission(sendorDeviceAddress);
+  Wire.write(regAddressCNTL1);
+  Wire.endTransmission();
+  Wire.requestFrom(sendorDeviceAddress, 1);
+  CNTL1 = Wire.read();
+  //setCNTL1reg
+  CNTL1 = CNTL1 | 0b10000000;
+  Wire.beginTransmission(sendorDeviceAddress);
+  Wire.write(regAddressCNTL1);
+  Wire.write(CNTL1);
+  Wire.endTransmission();
+  //--------------------------------------------------setup LPF
 
 }
 
@@ -46,7 +96,7 @@ void loop() {
   Wire.requestFrom(sendorDeviceAddress, 2);
   xData.byteStr[0] = Wire.read();
   xData.byteStr[1] = Wire.read();
-  
+
   //readYout
   Wire.beginTransmission(sendorDeviceAddress);
   Wire.write(regAddressYOUTL);
@@ -54,7 +104,7 @@ void loop() {
   Wire.requestFrom(sendorDeviceAddress, 2);
   yData.byteStr[0] = Wire.read();
   yData.byteStr[1] = Wire.read();
-  
+
   //readZout
   Wire.beginTransmission(sendorDeviceAddress);
   Wire.write(regAddressZOUTL);
@@ -63,14 +113,15 @@ void loop() {
   zData.byteStr[0] = Wire.read();
   zData.byteStr[1] = Wire.read();
 
+
   Serial.print("xdata:");
-  Serial.print(xData.data16, DEC); 
+  Serial.print(xData.data16, DEC);
   Serial.print(",");
   Serial.print("ydata:");
-  Serial.print(yData.data16, DEC); 
+  Serial.print(yData.data16, DEC);
   Serial.print(",");
   Serial.print("zdata:");
-  Serial.println(zData.data16, DEC); 
+  Serial.println(zData.data16, DEC);
   delay(200);
 
 }
