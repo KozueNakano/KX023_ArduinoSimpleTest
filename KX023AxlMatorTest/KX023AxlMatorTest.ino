@@ -16,7 +16,7 @@ const int regAddressCNTL1 = 0x18;
 
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
 
   //KX023debice initialize
@@ -39,6 +39,7 @@ void setup() {
   
   //setup LPF--------------------------------------------------
   //ここを初期化処理に追加すると加速度センサ側でローパスフィルタがかかります
+  
   //set device standbyMode
   //readCNTL1reg
   byte CNTL1 = 0;
@@ -113,15 +114,32 @@ void loop() {
   zData.byteStr[0] = Wire.read();
   zData.byteStr[1] = Wire.read();
 
+//  //rawDataOutput
+//  Serial.print("xdata:");
+//  Serial.print(xData.data16, DEC);
+//  Serial.print(",");
+//  Serial.print("ydata:");
+//  Serial.print(yData.data16, DEC);
+//  Serial.print(",");
+//  Serial.print("zdata:");
+//  Serial.println(zData.data16, DEC);
 
-  Serial.print("xdata:");
   Serial.print(xData.data16, DEC);
   Serial.print(",");
-  Serial.print("ydata:");
   Serial.print(yData.data16, DEC);
   Serial.print(",");
-  Serial.print("zdata:");
   Serial.println(zData.data16, DEC);
-  delay(200);
+
+//long xdata = xData.data16;
+//long ydata = yData.data16;
+//long zdata = zData.data16;
+//
+//double Norm = sqrt(double(pow(xdata,2) + pow(ydata,2) + pow(zdata,2)))-(32767/2);
+//Serial.print(Norm,DEC);
+//Serial.print(',');
+//static double vector = vector+Norm;
+//Serial.println(vector,DEC);
+
+  delay(100);
 
 }
